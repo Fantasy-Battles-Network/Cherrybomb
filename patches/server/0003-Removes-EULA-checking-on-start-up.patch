@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LoJoSho <contact@lojosho.com>
+Date: Sun, 17 Jul 2022 23:35:57 -0500
+Subject: [PATCH] Removes EULA checking on start up
+
+
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 0a843e0afbcb1af8e2641515eb244b791b819b8c..f40df1639ef4f5fbbbbb084bfe0debb6ab958249 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -115,28 +115,17 @@ public class Main {
+             org.bukkit.configuration.file.YamlConfiguration bukkitConfiguration = io.papermc.paper.configuration.PaperConfigurations.loadLegacyConfigFile((File) optionset.valueOf("bukkit-settings"));
+             org.bukkit.configuration.file.YamlConfiguration spigotConfiguration = io.papermc.paper.configuration.PaperConfigurations.loadLegacyConfigFile((File) optionset.valueOf("spigot-settings"));
+             // Paper end
+-
+-            Path path1 = Paths.get("eula.txt");
+-            Eula eula = new Eula(path1);
++            // Cherrybomb start
++            // Cherrybomb end
+ 
+             if (optionset.has("initSettings")) { // CraftBukkit
+-                Main.LOGGER.info("Initialized '{}' and '{}'", path.toAbsolutePath(), path1.toAbsolutePath());
++                Main.LOGGER.info("Initialized '{}'", path.toAbsolutePath());
+                 return;
+             }
+ 
+-            // Spigot Start
+-            boolean eulaAgreed = Boolean.getBoolean( "com.mojang.eula.agree" );
+-            if ( eulaAgreed )
+-            {
+-                System.err.println( "You have used the Spigot command line EULA agreement flag." );
+-                System.err.println( "By using this setting you are indicating your agreement to Mojang's EULA (https://account.mojang.com/documents/minecraft_eula)." );
+-                System.err.println( "If you do not agree to the above EULA please stop your server and remove this flag immediately." );
+-            }
+-            // Spigot End
+-            if (!eula.hasAgreedToEULA() && !eulaAgreed) { // Spigot
+-                Main.LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
+-                return;
+-            }
++            // Cherrybomb Start
++            Main.LOGGER.info("By using this software, you agree to Mojang EULA. If you do not agree with the eula, stop the server. ");
++            // Cherrybomb end
+ 
+             org.spigotmc.SpigotConfig.disabledAdvancements = spigotConfiguration.getStringList("advancements.disabled"); // Paper - fix SPIGOT-5885, must be set early in init
+             // Paper start - fix SPIGOT-5824
+@@ -196,7 +185,6 @@ public class Main {
+             // CraftBukkit end
+ 
+             WorldStem worldstem;
+-
+             try {
+                 DataPackConfig datapackconfiguration = (DataPackConfig) Objects.requireNonNullElse(convertable_conversionsession.getDataPacks(), DataPackConfig.DEFAULT);
+                 WorldLoader.PackConfig worldloader_b = new WorldLoader.PackConfig(resourcepackrepository, datapackconfiguration, flag);
+@@ -306,38 +294,6 @@ public class Main {
+         worldUpgrader.convert();
+     }
+     // Paper end - fix and optimise world upgrading
+-
+-    public static void forceUpgrade(LevelStorageSource.LevelStorageAccess session, DataFixer dataFixer, boolean eraseCache, BooleanSupplier continueCheck, WorldGenSettings generatorOptions) {
+-        Main.LOGGER.info("Forcing world upgrade! {}", session.getLevelId()); // CraftBukkit
+-        WorldUpgrader worldupgrader = new WorldUpgrader(session, dataFixer, generatorOptions, eraseCache);
+-        Component ichatbasecomponent = null;
+-
+-        while (!worldupgrader.isFinished()) {
+-            Component ichatbasecomponent1 = worldupgrader.getStatus();
+-
+-            if (ichatbasecomponent != ichatbasecomponent1) {
+-                ichatbasecomponent = ichatbasecomponent1;
+-                Main.LOGGER.info(worldupgrader.getStatus().getString());
+-            }
+-
+-            int i = worldupgrader.getTotalChunks();
+-
+-            if (i > 0) {
+-                int j = worldupgrader.getConverted() + worldupgrader.getSkipped();
+-
+-                Main.LOGGER.info("{}% completed ({} / {} chunks)...", new Object[]{Mth.floor((float) j / (float) i * 100.0F), j, i});
+-            }
+-
+-            if (!continueCheck.getAsBoolean()) {
+-                worldupgrader.cancel();
+-            } else {
+-                try {
+-                    Thread.sleep(1000L);
+-                } catch (InterruptedException interruptedexception) {
+-                    ;
+-                }
+-            }
+-        }
+-
+-    }
++    // Cherrybomb start - Removed forced upgrade
++    // Cherrybomb end - Removed forced upgrade
+ }
