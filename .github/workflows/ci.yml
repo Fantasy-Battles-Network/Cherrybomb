@@ -13,6 +13,8 @@ jobs:
           distribution: 'corretto'
           java-version: '18'
           cache: 'gradle'
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
       - name: Patch and build
         run: |
           git config --global user.email "no-reply@github.com"
