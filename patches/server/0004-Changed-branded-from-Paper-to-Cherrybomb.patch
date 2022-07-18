@@ -5,17 +5,19 @@ Subject: [PATCH] Changed branded from Paper to Cherrybomb
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index bf42969859545a8a520923ef1836ffa4a5cc24a0..0737b471d723b970c1c420971d405fe03b243288 100644
+index bf42969859545a8a520923ef1836ffa4a5cc24a0..6ba0f8017f588da74501ad657271caf0ed5daf8d 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-@@ -19,7 +19,6 @@ import java.util.stream.StreamSupport;
+@@ -19,8 +19,7 @@ import java.util.stream.StreamSupport;
  
  public class PaperVersionFetcher implements VersionFetcher {
      private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
 -    private static final String GITHUB_BRANCH_NAME = "master";
-     private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads";
+-    private static final String DOWNLOAD_PAGE = "https://papermc.io/downloads";
++    private static final String DOWNLOAD_PAGE = "https://github.com/Fantasy-Battles-Network/Cherrybomb"; //Cherrybomb
      private static @Nullable String mcVer;
  
+     @Override
 @@ -31,8 +30,8 @@ public class PaperVersionFetcher implements VersionFetcher {
      @Nonnull
      @Override
