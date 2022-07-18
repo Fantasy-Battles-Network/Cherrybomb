@@ -1,0 +1,9 @@
+.gradle/
+.idea/
+
+cherrybomb-api/
+cherrybomb-server/
+
+build-data/
+build/
+run/
