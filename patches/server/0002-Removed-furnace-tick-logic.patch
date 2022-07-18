@@ -1,0 +1,112 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LoJoSho <contact@lojosho.com>
+Date: Sun, 17 Jul 2022 23:10:27 -0500
+Subject: [PATCH] Removed furnace tick logic
+
+
+diff --git a/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java b/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
+index 4977f3fad3bfc12fd4c5f9fbe8beea2895247c57..e468b8ed0b0134ef94b041699fa4256943446cc6 100644
+--- a/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
++++ b/src/main/java/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
+@@ -321,99 +321,8 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
+     }
+ 
+     public static void serverTick(Level world, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity blockEntity) {
+-        boolean flag = blockEntity.isLit();
+-        boolean flag1 = false;
+-
+-        if (blockEntity.isLit()) {
+-            --blockEntity.litTime;
+-        }
+-
+-        ItemStack itemstack = (ItemStack) blockEntity.items.get(1);
+-        boolean flag2 = !((ItemStack) blockEntity.items.get(0)).isEmpty();
+-        boolean flag3 = !itemstack.isEmpty();
+-
+-        if (!blockEntity.isLit() && (!flag3 || !flag2)) {
+-            if (!blockEntity.isLit() && blockEntity.cookingProgress > 0) {
+-                blockEntity.cookingProgress = Mth.clamp(blockEntity.cookingProgress - 2, (int) 0, blockEntity.cookingTotalTime);
+-            }
+-        } else {
+-            Recipe irecipe;
+-
+-            if (flag2) {
+-                irecipe = (Recipe) blockEntity.quickCheck.getRecipeFor(blockEntity, world).orElse(null); // CraftBukkit - decompile error
+-            } else {
+-                irecipe = null;
+-            }
+-
+-            int i = blockEntity.getMaxStackSize();
+-
+-            if (!blockEntity.isLit() && AbstractFurnaceBlockEntity.canBurn(irecipe, blockEntity.items, i)) {
+-                // CraftBukkit start
+-                CraftItemStack fuel = CraftItemStack.asCraftMirror(itemstack);
+-
+-                FurnaceBurnEvent furnaceBurnEvent = new FurnaceBurnEvent(CraftBlock.at(world, pos), fuel, blockEntity.getBurnDuration(itemstack));
+-                world.getCraftServer().getPluginManager().callEvent(furnaceBurnEvent);
+-
+-                if (furnaceBurnEvent.isCancelled()) {
+-                    return;
+-                }
+-
+-                blockEntity.litTime = furnaceBurnEvent.getBurnTime();
+-                blockEntity.litDuration = blockEntity.litTime;
+-                if (blockEntity.isLit() && furnaceBurnEvent.isBurning()) {
+-                    // CraftBukkit end
+-                    flag1 = true;
+-                    if (flag3 && furnaceBurnEvent.willConsumeFuel()) { // Paper
+-                        Item item = itemstack.getItem();
+-
+-                        itemstack.shrink(1);
+-                        if (itemstack.isEmpty()) {
+-                            Item item1 = item.getCraftingRemainingItem();
+-
+-                            blockEntity.items.set(1, item1 == null ? ItemStack.EMPTY : new ItemStack(item1));
+-                        }
+-                    }
+-                }
+-            }
+-
+-            if (blockEntity.isLit() && AbstractFurnaceBlockEntity.canBurn(irecipe, blockEntity.items, i)) {
+-                // CraftBukkit start
+-                if (irecipe != null && blockEntity.cookingProgress == 0) {
+-                    CraftItemStack source = CraftItemStack.asCraftMirror(blockEntity.items.get(0));
+-                    CookingRecipe<?> recipe = (CookingRecipe<?>) irecipe.toBukkitRecipe();
+-
+-                    FurnaceStartSmeltEvent event = new FurnaceStartSmeltEvent(CraftBlock.at(world, pos), source, recipe, AbstractFurnaceBlockEntity.getTotalCookTime(world, blockEntity.recipeType, blockEntity, blockEntity.cookSpeedMultiplier)); // Paper - cook speed multiplier API
+-                    world.getCraftServer().getPluginManager().callEvent(event);
+-
+-                    blockEntity.cookingTotalTime = event.getTotalCookTime();
+-                }
+-                // CraftBukkit end
+-
+-                ++blockEntity.cookingProgress;
+-                if (blockEntity.cookingProgress >= blockEntity.cookingTotalTime) { // Paper - cook speed multiplier API
+-                    blockEntity.cookingProgress = 0;
+-                    blockEntity.cookingTotalTime = AbstractFurnaceBlockEntity.getTotalCookTime(world, blockEntity.recipeType, blockEntity, blockEntity.cookSpeedMultiplier); // Paper
+-                    if (AbstractFurnaceBlockEntity.burn(blockEntity.level, blockEntity.worldPosition, irecipe, blockEntity.items, i)) { // CraftBukkit
+-                        blockEntity.setRecipeUsed(irecipe);
+-                    }
+-
+-                    flag1 = true;
+-                }
+-            } else {
+-                blockEntity.cookingProgress = 0;
+-            }
+-        }
+-
+-        if (flag != blockEntity.isLit()) {
+-            flag1 = true;
+-            state = (BlockState) state.setValue(AbstractFurnaceBlock.LIT, blockEntity.isLit());
+-            world.setBlock(pos, state, 3);
+-        }
+-
+-        if (flag1) {
+-            setChanged(world, pos, state);
+-        }
+-
++        // Cherrybomb start
++        // Cherrybomb end
+     }
+ 
+     private static boolean canBurn(@Nullable Recipe<?> recipe, NonNullList<ItemStack> slots, int count) {
