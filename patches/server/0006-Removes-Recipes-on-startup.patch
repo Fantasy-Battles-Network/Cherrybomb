@@ -1,0 +1,154 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LoJoSho <contact@lojosho.com>
+Date: Fri, 22 Jul 2022 20:36:29 -0500
+Subject: [PATCH] Removes Recipes on startup
+
+
+diff --git a/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java b/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java
+index 4872f70977e73c889fe6e2339d00ebc64459613d..6345eb7d72d99dee3b84effe3200f3d0b28c4bef 100644
+--- a/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java
++++ b/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java
+@@ -52,34 +52,10 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
+         this.hasErrors = false;
+         // CraftBukkit start - SPIGOT-5667 make sure all types are populated and mutable
+         Map<RecipeType<?>, Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>>> map1 = Maps.newHashMap();
+-        for (RecipeType<?> recipeType : Registry.RECIPE_TYPE) {
+-            map1.put(recipeType, new Object2ObjectLinkedOpenHashMap<>());
+-        }
+         // CraftBukkit end
+         Builder<ResourceLocation, Recipe<?>> builder = ImmutableMap.builder();
+         Iterator iterator = prepared.entrySet().iterator();
+-
+-        while (iterator.hasNext()) {
+-            Entry<ResourceLocation, JsonElement> entry = (Entry) iterator.next();
+-            ResourceLocation minecraftkey = (ResourceLocation) entry.getKey();
+-
+-            try {
+-                Recipe<?> irecipe = RecipeManager.fromJson(minecraftkey, GsonHelper.convertToJsonObject((JsonElement) entry.getValue(), "top element"));
+-
+-                // CraftBukkit start
+-                (map1.computeIfAbsent(irecipe.getType(), (recipes) -> {
+-                    return new Object2ObjectLinkedOpenHashMap<>();
+-                    // CraftBukkit end
+-                })).put(minecraftkey, irecipe);
+-                builder.put(minecraftkey, irecipe);
+-            } catch (IllegalArgumentException | JsonParseException jsonparseexception) {
+-                RecipeManager.LOGGER.error("Parsing error loading recipe {}", minecraftkey, jsonparseexception);
+-            }
+-        }
+-
+-        this.recipes = (Map) map1.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, (entry1) -> {
+-            return entry1.getValue(); // CraftBukkit // Paper - decompile fix - *shrugs internally* // todo: is this needed anymore?
+-        }));
++        // Cherrybomb - Removed Recipes
+         this.byName = Maps.newHashMap(builder.build()); // CraftBukkit
+         RecipeManager.LOGGER.info("Loaded {} recipes", map1.size());
+     }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftBlastingRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftBlastingRecipe.java
+index 21f9c1e7141296b5354677332355e8cacc971f05..e74412f43dc004bf00b65ab7940cad7d239eaa8c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftBlastingRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftBlastingRecipe.java
+@@ -25,6 +25,6 @@ public class CraftBlastingRecipe extends BlastingRecipe implements CraftRecipe {
+     public void addToCraftingManager() {
+         ItemStack result = this.getResult();
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.BlastingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime()));
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.BlastingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime())); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftCampfireRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftCampfireRecipe.java
+index 5df1a2048460cc21a83bf1da2654ae2d78abb6b5..15f71bacd19730d2953473791253d949768a6187 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftCampfireRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftCampfireRecipe.java
+@@ -25,6 +25,6 @@ public class CraftCampfireRecipe extends CampfireRecipe implements CraftRecipe {
+     public void addToCraftingManager() {
+         ItemStack result = this.getResult();
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.CampfireCookingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime()));
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.CampfireCookingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime())); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftComplexRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftComplexRecipe.java
+index 81dfefbb1adda0d0b89b912b42d461bdc2250dcc..9e0e6b70b273bb59ea94886727b9bba87de4479b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftComplexRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftComplexRecipe.java
+@@ -27,6 +27,6 @@ public class CraftComplexRecipe implements CraftRecipe, ComplexRecipe {
+ 
+     @Override
+     public void addToCraftingManager() {
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(recipe);
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(recipe); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftFurnaceRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftFurnaceRecipe.java
+index 07e3951515429e3c377a230bf4872f313fe9ab13..0bde89f56379ffc00e394fd71872d84aeb6e4089 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftFurnaceRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftFurnaceRecipe.java
+@@ -25,6 +25,6 @@ public class CraftFurnaceRecipe extends FurnaceRecipe implements CraftRecipe {
+     public void addToCraftingManager() {
+         ItemStack result = this.getResult();
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.SmeltingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime()));
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.SmeltingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime())); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapedRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapedRecipe.java
+index d1156b5d9e210152ff06162382ca7f7978a4fd5e..828a39a9d48d32d296e49ae0d3438477660a652e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapedRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapedRecipe.java
+@@ -55,6 +55,6 @@ public class CraftShapedRecipe extends ShapedRecipe implements CraftRecipe {
+             }
+         }
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.ShapedRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), width, shape.length, data, CraftItemStack.asNMSCopy(this.getResult())));
++        // MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.ShapedRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), width, shape.length, data, CraftItemStack.asNMSCopy(this.getResult()))); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapelessRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapelessRecipe.java
+index 0b3b46348ac9195bff1492ffc11fcbff7d3f5c6f..38bc04a1840ede42539e6c6e5bc2c469633b406a 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapelessRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftShapelessRecipe.java
+@@ -43,6 +43,6 @@ public class CraftShapelessRecipe extends ShapelessRecipe implements CraftRecipe
+             data.set(i, toNMS(ingred.get(i), true));
+         }
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.ShapelessRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), CraftItemStack.asNMSCopy(this.getResult()), data));
++        // MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.ShapelessRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), CraftItemStack.asNMSCopy(this.getResult()), data)); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmithingRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmithingRecipe.java
+index bfd6b859fcfed89d0ebaca5200b7ca6f5d353d04..2eaad60a501ed22bbfd9fbd4f1977d75fe0cae3f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmithingRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmithingRecipe.java
+@@ -30,6 +30,6 @@ public class CraftSmithingRecipe extends SmithingRecipe implements CraftRecipe {
+     public void addToCraftingManager() {
+         ItemStack result = this.getResult();
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.UpgradeRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), toNMS(this.getBase(), true), toNMS(this.getAddition(), true), CraftItemStack.asNMSCopy(result), this.willCopyNbt())); // Paper
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.UpgradeRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), toNMS(this.getBase(), true), toNMS(this.getAddition(), true), CraftItemStack.asNMSCopy(result), this.willCopyNbt())); // Paper - Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmokingRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmokingRecipe.java
+index dafd268b4aea339876c787637d0373fb189df00f..5404b14b81a6b10f5ed60827e608c972203225e6 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmokingRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftSmokingRecipe.java
+@@ -25,6 +25,6 @@ public class CraftSmokingRecipe extends SmokingRecipe implements CraftRecipe {
+     public void addToCraftingManager() {
+         ItemStack result = this.getResult();
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.SmokingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime()));
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.SmokingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime())); // Cherrybomb
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/inventory/CraftStonecuttingRecipe.java b/src/main/java/org/bukkit/craftbukkit/inventory/CraftStonecuttingRecipe.java
+index 8d79d64dfa6ef46c4c103fec42b13e1aefc14b39..1eebbe6e84b07e0c279753925c12ec777eb3e95c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/inventory/CraftStonecuttingRecipe.java
++++ b/src/main/java/org/bukkit/craftbukkit/inventory/CraftStonecuttingRecipe.java
+@@ -25,6 +25,6 @@ public class CraftStonecuttingRecipe extends StonecuttingRecipe implements Craft
+     public void addToCraftingManager() {
+         ItemStack result = this.getResult();
+ 
+-        MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.StonecutterRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result)));
++        //MinecraftServer.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.StonecutterRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result))); // Cherrybomb
+     }
+ }
